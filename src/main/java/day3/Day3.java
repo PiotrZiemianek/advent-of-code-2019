@@ -5,6 +5,7 @@ import services.DataReaderFromFileService;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Day3 {
@@ -12,44 +13,82 @@ public class Day3 {
 
     public static void main(String[] args) {
         final List<String> input = DataReaderFromFileService.read(path).orElseThrow();
-        String[] wire1 = input.get(0).split(",");
-        String[] wire2 = input.get(1).split(",");
-        System.out.println(wire1.length);
-        System.out.println(wire2.length);
+        String[] wire1Path = input.get(0).split(",");
+        String[] wire2Path = input.get(1).split(",");
 
         String[] test1Path = {"R8", "U5", "L5", "D3"};
         String[] test2Path = {"U7", "R6", "D4", "L4"};
 
-        Wire redWire = new Wire(wire1);
-        Wire blueWire = new Wire(wire2);
+        Wire redWire = new Wire(wire1Path);
+        Wire blueWire = new Wire(wire2Path);
         List<int[]> redWireAllSections = getWireSections(redWire);
         List<int[]> blueWireAllSections = getWireSections(blueWire);
         List<int[]> crossPoints = new ArrayList<>();
-
+        List<Integer> allWiresLenToCross = new ArrayList<>();
+        //todo sumowanie odległości do skrzyżowania
+        //todo przechowywanie najmniejszej odległości
+        int redToCross = 0;
+        int blueToCross = 0;
         for (int[] redSection : redWireAllSections) {
+            blueToCross = 0;
+
             for (int[] blueSection : blueWireAllSections) {
-                isSectionCross(crossPoints, redSection, blueSection);
+                boolean isCrossed = isSectionsCross(crossPoints, redSection, blueSection);
+                if (isCrossed) {
+                    int redLastSectionLenght = getLastSectionLenght(crossPoints, redSection);
+                    int wiresLenToCross = redToCross + redLastSectionLenght
+                            + blueToCross + getLastSectionLenght(crossPoints, blueSection);
+                    allWiresLenToCross.add(wiresLenToCross);
+                }
+                blueToCross += getSectionLenght(blueSection);
             }
+            redToCross += getSectionLenght(redSection);
         }
 //        crossPoints.forEach(ints -> {
 //            System.out.println(Arrays.toString(ints));
 //            System.out.println(ints[0]+ints[1]);
 //        });
-        int cosestCPDist = crossPoints.stream()
+        int closestCPDist = crossPoints.stream()
                 .mapToInt(ints -> Math.abs(ints[0]) + Math.abs(ints[1]))
                 .min().orElseGet(() -> {
                     System.out.println("No crosspoints");
                     return 0;
                 });
-        System.out.println(cosestCPDist);
+        System.out.println(closestCPDist);
+        Collections.sort(allWiresLenToCross);
+        int lowestWiresLenToCross = allWiresLenToCross.get(0);
+        System.out.println(lowestWiresLenToCross);
     }
 
-    private static void isSectionCross(List<int[]> crossPoints, int[] redSection, int[] blueSection) {
+    private static int getLastSectionLenght(List<int[]> crossPoints, int[] Section) {
+        int[] crossPoint = crossPoints.get(crossPoints.size() - 1);
+        int[] redLastSectionToCross = new int[4];
+        System.arraycopy(Section, 0, redLastSectionToCross, 0, 2);
+        System.arraycopy(crossPoint, 0, redLastSectionToCross, 2, 2);
+        return getSectionLenght(redLastSectionToCross);
+    }
+
+    private static int getSectionLenght(int[] section) {
+
+        int[] sBorders = new int[2];
+        if (isVertivaly(section)) {
+            sBorders[0] = section[1];
+            sBorders[1] = section[3];
+        } else {
+            sBorders[0] = section[0];
+            sBorders[1] = section[2];
+        }
+        Arrays.sort(sBorders);
+        return sBorders[1] - sBorders[0];
+    }
+
+    private static boolean isSectionsCross(List<int[]> crossPoints, int[] redSection, int[] blueSection) {
+        boolean isCrossed = false;
         if (isVertivaly(redSection) && !isVertivaly(blueSection)) {
             int[] maybeCrossPoint = {redSection[0], blueSection[1]};
             boolean isBlueContaisPoint = isHorizontalContainsPoint(blueSection, maybeCrossPoint);
             boolean isRedContaisPoint = isVerticalContainsPoint(redSection, maybeCrossPoint);
-            boolean isCrossed = isBlueContaisPoint && isRedContaisPoint;
+            isCrossed = isBlueContaisPoint && isRedContaisPoint;
             if (isCrossed) {
                 crossPoints.add(maybeCrossPoint);
             }
@@ -57,11 +96,12 @@ public class Day3 {
             int[] maybeCrossPoint = {blueSection[0], redSection[1]};
             boolean isBlueContaisPoint = isHorizontalContainsPoint(redSection, maybeCrossPoint);
             boolean isRedContaisPoint = isVerticalContainsPoint(blueSection, maybeCrossPoint);
-            boolean isCrossed = isBlueContaisPoint && isRedContaisPoint;
+            isCrossed = isBlueContaisPoint && isRedContaisPoint;
             if (isCrossed) {
                 crossPoints.add(maybeCrossPoint);
             }
         }
+        return isCrossed;
     }
 
     private static boolean isHorizontalContainsPoint(int[] horizontalSection, int[] maybeCrossPoint) {
@@ -92,12 +132,12 @@ public class Day3 {
         return section[0] == section[2];
     }
 
-    private static List<int[]> getWireSections(Wire redWire) {
+    private static List<int[]> getWireSections(Wire wire) {
         List<int[]> wireAllSections = new ArrayList<>();
-        for (String s : redWire.path) {
-            moveToNextTurn(redWire, s);
-            int[] beforeCoordinate = redWire.beforeCoordinate;
-            int[] actualCoordinate = redWire.actualCoordinate;
+        for (String move : wire.path) {
+            moveToNextTurn(wire, move);
+            int[] beforeCoordinate = wire.beforeCoordinate;
+            int[] actualCoordinate = wire.actualCoordinate;
             int[] section = new int[4];
             System.arraycopy(beforeCoordinate, 0, section, 0, 2);
             System.arraycopy(actualCoordinate, 0, section, 2, 2);
