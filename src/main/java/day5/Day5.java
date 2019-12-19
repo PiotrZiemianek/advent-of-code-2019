@@ -8,7 +8,7 @@ import java.util.List;
 import static services.IntComputer.*;
 
 public class Day5 {
-    static Path path = Path.of("src/main/resources/day5input.txt");
+    private static Path path = Path.of("src/main/resources/day5input.txt");
 
     public static void main(String[] args) {
 
