@@ -25,8 +25,7 @@ public class Day3 {
         List<int[]> blueWireAllSections = getWireSections(blueWire);
         List<int[]> crossPoints = new ArrayList<>();
         List<Integer> allWiresLenToCross = new ArrayList<>();
-        //todo sumowanie odległości do skrzyżowania
-        //todo przechowywanie najmniejszej odległości
+
         int redToCross = 0;
         int blueToCross = 0;
         for (int[] redSection : redWireAllSections) {

@@ -1,14 +1,11 @@
 package services;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class IntComputer {
-    private static Integer input = 0;
-    private static Integer output = 0;
+    private static Queue<Integer> buffer = new LinkedList<>();
 
     public static void processIntcode(List<Integer> intcode) {
         int params = 1;
@@ -52,17 +49,18 @@ public class IntComputer {
                     break;
                 case 3:
                     int indexToInput = intcode.get(i + 1);
-                    intcode.set(indexToInput, input);
+                    intcode.set(indexToInput, buffer.remove());
                     params = oneParam;
                     break;
                 case 4:
+                    Integer output;
                     int indexToOutput = intcode.get(i + 1);
                     if (firstParamMode == 0) {
                         output = intcode.get(indexToOutput);
                     } else {
                         output = indexToOutput;
                     }
-                    System.out.println(i + "c" + output);
+                    buffer.add(output);
                     params = oneParam;
                     break;
                 case 5:
@@ -163,10 +161,10 @@ public class IntComputer {
     }
 
     public static void setInput(Integer input) {
-        IntComputer.input = input;
+        IntComputer.buffer.add(input);
     }
 
     public static Integer getOutput() {
-        return output;
+        return buffer.remove();
     }
 }
