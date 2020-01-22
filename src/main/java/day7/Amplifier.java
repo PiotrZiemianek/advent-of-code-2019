@@ -23,9 +23,9 @@ public class Amplifier {
     public void amplify(ExecutorService ec) {
         Runnable task = () -> {
             Thread.currentThread().setName(id);
-            Buffer.addToBuffer(phaseSetting);
+            Buffer.inputSettings(phaseSetting);
             if (inputSignal != null) {
-                Buffer.addToBuffer(inputSignal);
+//                Buffer.inputSettings(inputSignal);
             }
             List<Integer> copyOfAmplifierControllerSoftware = new ArrayList<>(amplifierControllerSoftware); //each thread will have software to modify
             ampIntComputer.processIntcode(copyOfAmplifierControllerSoftware);
