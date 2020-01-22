@@ -1,9 +1,8 @@
 package day7;
 
-import services.IntComputerDay7;
+import services.AmpIntComputer;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -13,21 +12,23 @@ public class Amplifier {
     private int phaseSetting;
     private Integer inputSignal;
     private List<Integer> amplifierControllerSoftware;
+    AmpIntComputer ampIntComputer;
 
     public Amplifier(String id, List<Integer> amplifierControllerSoftware) {
         this.id = id;
         this.amplifierControllerSoftware = amplifierControllerSoftware;
+        ampIntComputer = new AmpIntComputer();
     }
 
     public void amplify(ExecutorService ec) {
         Runnable task = () -> {
             Thread.currentThread().setName(id);
-            IntComputerDay7.input(phaseSetting);
+            Buffer.addToBuffer(phaseSetting);
             if (inputSignal != null) {
-                IntComputerDay7.input(inputSignal);
+                Buffer.addToBuffer(inputSignal);
             }
             List<Integer> copyOfAmplifierControllerSoftware = new ArrayList<>(amplifierControllerSoftware); //each thread will have software to modify
-            IntComputerDay7.processIntcode(copyOfAmplifierControllerSoftware);
+            ampIntComputer.processIntcode(copyOfAmplifierControllerSoftware);
         };
         ec.execute(task);
     }

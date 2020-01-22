@@ -1,17 +1,19 @@
 package services;
 
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import day7.Buffer;
 
-public class IntComputerDay7 {
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class AmpIntComputer {
     private final Queue<Integer> buffer = new LinkedList<>();
     private final Map<String, Queue<Integer>> threadsBuffer = new ConcurrentHashMap<>();
 
 
     public void processIntcode(List<Integer> intcode) {
-        addThreadsToMap();
 
         int params = 1;
         final int oneParam = 2;
@@ -53,40 +55,29 @@ public class IntComputerDay7 {
                     params = threeParams;
                     break;
                 case 3:
-                    synchronized (threadsBuffer.get(Thread.currentThread().getName())) {
-                        int indexToInput = intcode.get(i + 1);
 
-                        if (threadsBuffer.get(Thread.currentThread().getName()).isEmpty()) {
-                            try {
-
-                                threadsBuffer.get(Thread.currentThread().getName()).wait();
-
-                            } catch (InterruptedException e) {
-                                System.out.println("Thread " + Thread.currentThread().getName() + " interrupt!");
-                            }
-                        }
-                        intcode.set(indexToInput, threadsBuffer.get(Thread.currentThread().getName()).remove());
+                    int indexToInput = intcode.get(i + 1);
 
 
-                        params = oneParam;
-                    }
+                    intcode.set(indexToInput, Buffer.takeFromBuffer());
+
+
+                    params = oneParam;
 
                     break;
                 case 4:
 
-                    synchronized (threadsBuffer.get(getNextThreadName(Thread.currentThread().getName()))) {
-                        int indexToOutput = intcode.get(i + 1);
-                        int output;
-                        if (firstParamMode == 0) {
-                            output = (intcode.get(indexToOutput));
-                        } else {
-                            output = (indexToOutput);
-                        }
-                        threadsBuffer.get(getNextThreadName(Thread.currentThread().getName())).add(output);
-                        threadsBuffer.get(getNextThreadName(Thread.currentThread().getName())).notify();
-
-                        params = oneParam;
+                    int indexToOutput = intcode.get(i + 1);
+                    int output;
+                    if (firstParamMode == 0) {
+                        output = (intcode.get(indexToOutput));
+                    } else {
+                        output = (indexToOutput);
                     }
+
+                    Buffer.addToBuffer(output);
+                    params = oneParam;
+
                     break;
                 case 5:
                     int indexIsNonZero = intcode.get(i + 1);
@@ -176,52 +167,4 @@ public class IntComputerDay7 {
         }
     }
 
-    private synchronized void addThreadsToMap() {
-        if (!threadsBuffer.containsKey(Thread.currentThread().getName())) {
-            Queue<Integer> buffer = new LinkedList<>();
-            threadsBuffer.put(Thread.currentThread().getName(), buffer);
-        }
-        if (!threadsBuffer.containsKey(getNextThreadName(Thread.currentThread().getName()))) {
-            Queue<Integer> buffer = new LinkedList<>();
-            threadsBuffer.put(getNextThreadName(Thread.currentThread().getName()), buffer);
-        }
-    }
-
-    private synchronized String getNextThreadName(String threadName) {
-        String nextThreadName = "";
-
-        int nextAmpId = Integer.parseInt(threadName) + 1;
-        nextAmpId = (nextAmpId == 6) ? nextAmpId = 1 : nextAmpId;
-        nextThreadName = Integer.valueOf(nextAmpId).toString();
-
-        return nextThreadName;
-    }
-
-    public List<Integer> getIntcode(Path path) {
-        final List<String> input = DataReaderFromFileService.read(path).orElseThrow();
-        final String[] stringIntcode = input.get(0).split(",");
-        return Arrays.stream(stringIntcode)
-                .map(Integer::parseInt)
-                .collect(Collectors
-                        .toCollection(ArrayList::new));
-    }
-
-    public synchronized void input(Integer input) {
-        String threadName = Thread.currentThread().getName();
-
-        if (!threadsBuffer.containsKey(threadName)) {
-            Queue<Integer> buffer = new LinkedList<>();
-            threadsBuffer.put(threadName, buffer);
-        }
-        threadsBuffer.get(threadName).add(input);
-
-    }
-
-    public Integer getOutput() {
-        return buffer.remove();
-    }
-
-    public synchronized Integer getAmplifyOutput() {
-        return threadsBuffer.get("1").remove();
-    }
 }

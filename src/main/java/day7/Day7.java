@@ -1,6 +1,7 @@
 package day7;
 
-import services.IntComputerDay7;
+import services.AmpIntComputer;
+import services.IntComputer;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -9,14 +10,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static services.IntComputerDay7.*;
-
 public class Day7 {
     private static Path path = Path.of("src/main/resources/day7input.txt");
     private static List<int[]> phaseSettingsList = new ArrayList<>();
 
     public static void main(String[] args) throws InterruptedException {
-        List<Integer> amplifierControllerSoftware = getIntcode(path);
+        List<Integer> amplifierControllerSoftware = IntComputer.getIntcode(path);
         int[] phaseSettings = {5, 6, 7, 8, 9};
         permuteArray(phaseSettings, 0, 4);
 
@@ -63,7 +62,7 @@ public class Day7 {
             ec.awaitTermination(10, TimeUnit.SECONDS);
 
 
-            int signalToThrusters = IntComputerDay7.getAmplifyOutput();
+            int signalToThrusters = Buffer.getAmplifyResult();
             toThrustersList.add(signalToThrusters);
         }
         return toThrustersList;

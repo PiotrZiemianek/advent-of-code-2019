@@ -8,13 +8,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Buffer {
     private static final Map<String, Queue<Integer>> threadsBuffer = new ConcurrentHashMap<>();
 
-    public static void addToBuffer(String threadName, int output) {
+    public static void addToBuffer(int output) {
         addThreadsToMap();
         threadsBuffer.get(Thread.currentThread().getName()).add(output);
         threadsBuffer.get(getNextThreadName(Thread.currentThread().getName())).notify();
     }
 
-    public static int takeFromBuffer(String threadName) {
+    public static int takeFromBuffer() {
         if (threadsBuffer.get(Thread.currentThread().getName()).isEmpty()) {
             try {
 
@@ -27,7 +27,7 @@ public class Buffer {
         return threadsBuffer.get(Thread.currentThread().getName()).remove();
     }
 
-    private static synchronized void addThreadsToMap() {
+    private static void addThreadsToMap() {
         if (!threadsBuffer.containsKey(Thread.currentThread().getName())) {
             Queue<Integer> buffer = new LinkedList<>();
             threadsBuffer.put(Thread.currentThread().getName(), buffer);
@@ -38,11 +38,14 @@ public class Buffer {
         }
     }
 
-    private static synchronized String getNextThreadName(String threadName) {
+    private static String getNextThreadName(String threadName) {
 
         int nextAmpId = Integer.parseInt(threadName) + 1;
         nextAmpId = (nextAmpId == 6) ? nextAmpId = 1 : nextAmpId;
 
         return Integer.valueOf(nextAmpId).toString();
+    }
+    public static int getAmplifyResult(){
+        return threadsBuffer.get("1").remove();
     }
 }
