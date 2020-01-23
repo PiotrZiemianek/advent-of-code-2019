@@ -1,10 +1,10 @@
 package day7;
 
-import services.AmpIntComputer;
 import services.IntComputer;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -47,9 +47,12 @@ public class Day7 {
         ampsList.add(ampE);
 
         for (int[] phaseSettings : phaseSettingsList) {
-
-            ExecutorService ec = Executors.newFixedThreadPool(5);
-            ampA.setInputSignal(0);
+            int nThreads = 5;
+            ExecutorService ec = Executors.newFixedThreadPool(nThreads);
+            for (int i = 1; i <= nThreads; i++) {
+                Buffer.threadsBuffer.put(Integer.toString(i), new LinkedList<>());
+            }
+//            ampA.setInputSignal(0);
 
             int phaseSettingIndex = 0;
             for (Amplifier amp : ampsList) {

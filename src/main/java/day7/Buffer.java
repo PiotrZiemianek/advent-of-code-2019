@@ -6,12 +6,19 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Buffer {
-    private static final Map<String, Queue<Integer>> threadsBuffer = new ConcurrentHashMap<>();
+     static Map<String, Queue<Integer>> threadsBuffer = new ConcurrentHashMap<>();
 
     public static synchronized void inputSettings(int setting) {
-        addThreadsToMap();
-        threadsBuffer.get(Thread.currentThread().getName()).add(setting);
+//        addThreadsToMap(); todo uzupełnianie listy jest teraz w main
+        String threadName = Thread.currentThread().getName();
+        Queue<Integer> integers = threadsBuffer.get(threadName);
+        integers.add(setting);
+        System.out.println(); //for debug todo
+//        if (threadName.equals("1")) {
+//            threadsBuffer.get(threadName).add(0);
+//        } //todo
     }
+
     public static void addToBuffer(int signal) {
 //            addThreadsToMap();
         synchronized (threadsBuffer.get(getNextThreadName(Thread.currentThread().getName()))) {
@@ -22,8 +29,8 @@ public class Buffer {
     }
 
     public static int takeFromBuffer() {
-        synchronized (threadsBuffer.get(Thread.currentThread().getName())){
-        String threadName = Thread.currentThread().getName();
+        synchronized (threadsBuffer.get(Thread.currentThread().getName())) {
+            String threadName = Thread.currentThread().getName();
             if (threadsBuffer.get(threadName).isEmpty()) {
                 try {
 
