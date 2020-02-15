@@ -14,9 +14,9 @@ public class Buffer {
         Queue<Integer> integers = threadsBuffer.get(threadName);
         integers.add(setting);
         System.out.println(); //for debug todo
-//        if (threadName.equals("1")) {
-//            threadsBuffer.get(threadName).add(0);
-//        } //todo
+        if (threadName.equals("1")) {
+            threadsBuffer.get(threadName).add(0);
+        } //todo
     }
 
     public static void addToBuffer(int signal) {
@@ -58,7 +58,7 @@ public class Buffer {
     private static synchronized String getNextThreadName(String threadName) {
 
         int nextAmpId = Integer.parseInt(threadName) + 1;
-        nextAmpId = (nextAmpId == 6) ? nextAmpId = 1 : nextAmpId;
+        nextAmpId = (nextAmpId == 6) ? 1 : nextAmpId;
 
         return Integer.valueOf(nextAmpId).toString();
     }

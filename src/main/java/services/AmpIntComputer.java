@@ -2,15 +2,9 @@ package services;
 
 import day7.Buffer;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class AmpIntComputer {
-    private final Queue<Integer> buffer = new LinkedList<>();
-    private final Map<String, Queue<Integer>> threadsBuffer = new ConcurrentHashMap<>();
 
 
     public void processIntcode(List<Integer> intcode) {
