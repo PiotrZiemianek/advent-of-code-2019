@@ -4,7 +4,6 @@ import services.IntComputer;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -51,7 +50,7 @@ public class Day7 {
             int nThreads = 5;
             ExecutorService ec = Executors.newFixedThreadPool(nThreads);
             for (int i = 1; i <= nThreads; i++) {
-                Buffer.threadsBuffer.put(Integer.toString(i), new ConcurrentLinkedQueue<>());
+                Buffer.threadsBufferMap.put(Integer.toString(i), new ConcurrentLinkedQueue<>());
             }
 
             int phaseSettingIndex = 0;
@@ -67,6 +66,7 @@ public class Day7 {
 
             int signalToThrusters = Buffer.getAmplifyResult();
             toThrustersList.add(signalToThrusters);
+            System.out.println("to thrusters " + signalToThrusters +'\n'); //todo for debug
         }
         return toThrustersList;
     }

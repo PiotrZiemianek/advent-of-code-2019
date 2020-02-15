@@ -9,8 +9,6 @@ import java.util.concurrent.ExecutorService;
 public class Amplifier {
 
     private String id;
-    private int phaseSetting;
-//    private Integer inputSignal;
     private List<Integer> amplifierControllerSoftware;
     AmpIntComputer ampIntComputer;
 
@@ -23,10 +21,6 @@ public class Amplifier {
     public void amplify(ExecutorService ec) {
         Runnable task = () -> {
             Thread.currentThread().setName(id);
-            Buffer.inputSettings(phaseSetting);
-//            if (inputSignal != null) {
-////                Buffer.inputSettings(inputSignal);
-//            }
             List<Integer> copyOfAmplifierControllerSoftware = new ArrayList<>(amplifierControllerSoftware); //each thread will have software to modify
             ampIntComputer.processIntcode(copyOfAmplifierControllerSoftware);
         };
@@ -34,11 +28,7 @@ public class Amplifier {
     }
 
     public void setPhaseSetting(int phaseSetting) {
-        this.phaseSetting = phaseSetting;
+        Buffer.inputSettings(id, phaseSetting);
     }
-
-//    public void setInputSignal(int inputSignal) {
-//        this.inputSignal = inputSignal;
-//    }
 
 }
