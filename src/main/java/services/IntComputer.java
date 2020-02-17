@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 public class IntComputer {
     private static Queue<Integer> buffer = new LinkedList<>();
 
+    private static int relativeBaseOffset = 0;
+
     public static void processIntcode(List<Integer> intcode) {
         int params = 1;
         int oneParam = 2;
@@ -21,11 +23,12 @@ public class IntComputer {
                     int indexToAdd1 = intcode.get(i + 1);
                     int indexToAdd2 = intcode.get(i + 2);
                     int addResultIndex = intcode.get(i + 3);
-                    Integer valueToAdd1 = indexToAdd1;
+//                    Integer valueToAdd1 = indexToAdd1;
+                    Integer valueToAdd1 = getParamOnMode(firstParamMode, indexToAdd1, intcode);//todo change method name and test method
                     Integer valueToAdd2 = indexToAdd2;
-                    if (firstParamMode == 0) {
-                        valueToAdd1 = intcode.get(indexToAdd1);
-                    }
+//                    if (firstParamMode == 0) {
+//                        valueToAdd1 = intcode.get(indexToAdd1);
+//                    }
                     if (secondParamMode == 0) {
                         valueToAdd2 = intcode.get(indexToAdd2);
                     }
@@ -140,7 +143,10 @@ public class IntComputer {
                     }
                     params = threeParams;
                     break;
-
+                case 9:
+                    relativeBaseOffset += intcode.get(i + 1); //todo setmode
+                    params = oneParam;
+                    break;
                 case 99:
                     i = intcode.size();
                     break;
@@ -149,6 +155,7 @@ public class IntComputer {
                     i = intcode.size();
             }
         }
+        relativeBaseOffset = 0;
     }
 
     public static List<Integer> getIntcode(Path path) {
@@ -166,5 +173,33 @@ public class IntComputer {
 
     public static Integer getOutput() {
         return buffer.remove();
+    }
+
+
+    /**
+     * Return parameter on selected mode.
+     *
+     * @param mode  <br> 0 - position mode - parameter is interpreted as a address in memory, <br>
+     *              1 - immediate mode - a parameter is interpreted as a value, <br>
+     *              2 - relative mode - like position mode but address refers to is itself plus the current relative base.
+     * @param index address in memory
+     * @return parameter on selected mode.
+     */
+    private static Integer getParamOnMode(int mode, int index, List<Integer> intcode) {
+        Integer param;
+        switch (mode) {
+            case 0:
+                param = intcode.get(index);
+                break;
+            case 1:
+                param = index;
+                break;
+            case 2:
+                param = intcode.get(index + relativeBaseOffset);
+                break;
+            default:
+                throw new IllegalStateException("Unexpected mode value: " + mode);
+        }
+        return param;
     }
 }
