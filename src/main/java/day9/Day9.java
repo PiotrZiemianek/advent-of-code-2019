@@ -10,7 +10,7 @@ public class Day9 {
 
     public static void main(String[] args) {
         List<Long> longcode = LongComputer.getLongcode(path);
-        LongComputer.setInput(1L);
+        LongComputer.setInput(2L);
         LongComputer.processLongcode(longcode);
         System.out.println("Output: " + LongComputer.getOutput());
     }
