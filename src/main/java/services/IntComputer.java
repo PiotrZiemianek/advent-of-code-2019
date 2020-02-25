@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 public class IntComputer {
     private static Queue<Integer> buffer = new LinkedList<>();
 
+    private static int relativeBaseOffset = 0;
+
     public static void processIntcode(List<Integer> intcode) {
         int params = 1;
         int oneParam = 2;
@@ -21,14 +23,8 @@ public class IntComputer {
                     int indexToAdd1 = intcode.get(i + 1);
                     int indexToAdd2 = intcode.get(i + 2);
                     int addResultIndex = intcode.get(i + 3);
-                    Integer valueToAdd1 = indexToAdd1;
-                    Integer valueToAdd2 = indexToAdd2;
-                    if (firstParamMode == 0) {
-                        valueToAdd1 = intcode.get(indexToAdd1);
-                    }
-                    if (secondParamMode == 0) {
-                        valueToAdd2 = intcode.get(indexToAdd2);
-                    }
+                    Integer valueToAdd1 = getParamOnMode(firstParamMode, indexToAdd1, intcode);
+                    Integer valueToAdd2 = getParamOnMode(secondParamMode, indexToAdd2, intcode);
                     intcode.set(addResultIndex, valueToAdd1 + valueToAdd2);
                     params = threeParams;
                     break;
@@ -36,14 +32,8 @@ public class IntComputer {
                     int indexToMulti1 = intcode.get(i + 1);
                     int indexToMulti2 = intcode.get(i + 2);
                     int multiResultIndex = intcode.get(i + 3);
-                    Integer valueToMulti1 = indexToMulti1;
-                    Integer valueToMulti2 = indexToMulti2;
-                    if (firstParamMode == 0) {
-                        valueToMulti1 = intcode.get(indexToMulti1);
-                    }
-                    if (secondParamMode == 0) {
-                        valueToMulti2 = intcode.get(indexToMulti2);
-                    }
+                    Integer valueToMulti1 = getParamOnMode(firstParamMode, indexToMulti1, intcode);
+                    Integer valueToMulti2 = getParamOnMode(secondParamMode, indexToMulti2, intcode);
                     intcode.set(multiResultIndex, valueToMulti1 * valueToMulti2);
                     params = threeParams;
                     break;
@@ -53,28 +43,16 @@ public class IntComputer {
                     params = oneParam;
                     break;
                 case 4:
-                    Integer output;
                     int indexToOutput = intcode.get(i + 1);
-                    if (firstParamMode == 0) {
-                        output = intcode.get(indexToOutput);
-                    } else {
-                        output = indexToOutput;
-                    }
+                    Integer output = getParamOnMode(firstParamMode, indexToOutput, intcode);
                     buffer.add(output);
                     params = oneParam;
                     break;
                 case 5:
                     int indexIsNonZero = intcode.get(i + 1);
                     int indexToJumpINZ = intcode.get(i + 2);
-                    int valueIsNonZero = indexIsNonZero;
-                    int valueToJumpINZ = indexToJumpINZ;
-
-                    if (firstParamMode == 0) {
-                        valueIsNonZero = intcode.get(indexIsNonZero);
-                    }
-                    if (secondParamMode == 0) {
-                        valueToJumpINZ = intcode.get(indexToJumpINZ);
-                    }
+                    int valueIsNonZero = getParamOnMode(firstParamMode, indexIsNonZero, intcode);
+                    int valueToJumpINZ = getParamOnMode(secondParamMode, indexToJumpINZ, intcode);
 
                     if (valueIsNonZero == 0) {
                         params = twoParams;
@@ -86,15 +64,9 @@ public class IntComputer {
                 case 6:
                     int indexIsZero = intcode.get(i + 1);
                     int indexToJumpIfZ = intcode.get(i + 2);
-                    int valueIsZero = indexIsZero;
-                    int valueToJumpIfZ = indexToJumpIfZ;
+                    int valueIsZero = getParamOnMode(firstParamMode,indexIsZero,intcode);
+                    int valueToJumpIfZ = getParamOnMode(secondParamMode,indexToJumpIfZ,intcode);
 
-                    if (firstParamMode == 0) {
-                        valueIsZero = intcode.get(indexIsZero);
-                    }
-                    if (secondParamMode == 0) {
-                        valueToJumpIfZ = intcode.get(indexToJumpIfZ);
-                    }
                     if (valueIsZero == 0) {
                         params = 0;
                         i = valueToJumpIfZ;
@@ -106,14 +78,9 @@ public class IntComputer {
                     int indexToCompare1 = intcode.get(i + 1);
                     int indexToCompare2 = intcode.get(i + 2);
                     int compareResultIndex = intcode.get(i + 3);
-                    Integer valueToCompare1 = indexToCompare1;
-                    Integer valueToCompare2 = indexToCompare2;
-                    if (firstParamMode == 0) {
-                        valueToCompare1 = intcode.get(indexToCompare1);
-                    }
-                    if (secondParamMode == 0) {
-                        valueToCompare2 = intcode.get(indexToCompare2);
-                    }
+                    Integer valueToCompare1 = getParamOnMode(firstParamMode,indexToCompare1,intcode);
+                    Integer valueToCompare2 = getParamOnMode(secondParamMode,indexToCompare2,intcode);
+
                     if (valueToCompare1 < valueToCompare2) {
                         intcode.set(compareResultIndex, 1);
                     } else {
@@ -125,14 +92,9 @@ public class IntComputer {
                     int indexIsEquals1 = intcode.get(i + 1);
                     int indexIsEquals2 = intcode.get(i + 2);
                     int equalsResultIndex = intcode.get(i + 3);
-                    Integer valueIsEquals1 = indexIsEquals1;
-                    Integer valueIsEquals2 = indexIsEquals2;
-                    if (firstParamMode == 0) {
-                        valueIsEquals1 = intcode.get(indexIsEquals1);
-                    }
-                    if (secondParamMode == 0) {
-                        valueIsEquals2 = intcode.get(indexIsEquals2);
-                    }
+                    Integer valueIsEquals1 = getParamOnMode(firstParamMode,indexIsEquals1,intcode);
+                    Integer valueIsEquals2 = getParamOnMode(secondParamMode,indexIsEquals2,intcode);
+
                     if (valueIsEquals1.equals(valueIsEquals2)) {
                         intcode.set(equalsResultIndex, 1);
                     } else {
@@ -140,7 +102,10 @@ public class IntComputer {
                     }
                     params = threeParams;
                     break;
-
+                case 9:
+                    relativeBaseOffset += getParamOnMode(firstParamMode,intcode.get(i + 1),intcode);
+                    params = oneParam;
+                    break;
                 case 99:
                     i = intcode.size();
                     break;
@@ -149,6 +114,7 @@ public class IntComputer {
                     i = intcode.size();
             }
         }
+        relativeBaseOffset = 0;
     }
 
     public static List<Integer> getIntcode(Path path) {
@@ -166,5 +132,34 @@ public class IntComputer {
 
     public static Integer getOutput() {
         return buffer.remove();
+    }
+
+
+    /**
+     * Returns parameter on selected mode.
+     *
+     * @param mode    <br> 0 - position mode - parameter is interpreted as a address in memory, <br>
+     *                1 - immediate mode - a parameter is interpreted as a value, <br>
+     *                2 - relative mode - like position mode but address refers to is itself plus the current relative base.<br><br>
+     * @param index   address in memory<br><br>
+     * @param intcode memory<br>
+     * @return parameter on selected mode.
+     */
+    private static Integer getParamOnMode(int mode, int index, List<Integer> intcode) {
+        Integer param;
+        switch (mode) {
+            case 0:
+                param = intcode.get(index);
+                break;
+            case 1:
+                param = index;
+                break;
+            case 2:
+                param = intcode.get(index + relativeBaseOffset);
+                break;
+            default:
+                throw new IllegalStateException("Unexpected mode value: " + mode);
+        }
+        return param;
     }
 }
