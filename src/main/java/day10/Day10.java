@@ -1,30 +1,51 @@
 package day10;
 
-import day4.Asteroid;
 import services.DataReaderFromFileService;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Day10 {
     static Path path = Path.of("src/main/resources/day10input.txt");
     static List<String> input = DataReaderFromFileService.read(path).orElse(Collections.emptyList());
 
     public static void main(String[] args) {
-        List<Asteroid> asteroids = new ArrayList<>();
         input.forEach(System.out::println);
-        for (int y = 0; y < input.size(); y++){
-            String s = input.get(y);
-            for (int x = 0; x < s.length() ; x++) {
+        List<Asteroid> asteroids = getAsteroidsList(input);
+        Map<Asteroid, Integer> asteroidsWithNumOfDetected = new HashMap<>();
+        for (Asteroid mainAsteroid : asteroids) {
+            Set<Float> detectedAngles = new HashSet<>();
+            for (Asteroid asteroidToDetect : asteroids) {
+                if (!mainAsteroid.equals(asteroidToDetect)) {
+                    float angle = mainAsteroid.getAngle(asteroidToDetect);
+                    detectedAngles.add(angle);
+                }
+            }
+
+            asteroidsWithNumOfDetected.put(mainAsteroid, detectedAngles.size());
+        }
+        Asteroid bestLocalisationAst = Collections
+                .max(asteroidsWithNumOfDetected.entrySet(), Map.Entry.comparingByValue())
+                .getKey();
+        Integer highestDetected = asteroidsWithNumOfDetected.get(bestLocalisationAst);
+        System.out.println(bestLocalisationAst + " " + highestDetected);
+
+
+    }
+
+    private static List<Asteroid> getAsteroidsList(List<String> mapImage) {
+        List<Asteroid> asteroids = new ArrayList<>();
+        for (int y = 0; y < mapImage.size(); y++) {
+            String s = mapImage.get(y);
+            for (int x = 0; x < s.length(); x++) {
                 char c = s.charAt(x);
-                if (c=='#'){
-                   asteroids.add(new Asteroid(x,y));
+                if (c == '#') {
+                    asteroids.add(new Asteroid(x, y));
                 }
             }
         }
-        System.out.println(asteroids.size());
+        return asteroids;
     }
+
 }
 
